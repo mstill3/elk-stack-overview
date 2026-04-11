@@ -18,14 +18,14 @@ It is especially powerful when your data has clear field types and you need to s
 
 Elasticsearch terminology:
 
-- a **document** is one record
-- an **index** is a collection of records
-- a **field** is one property on a record
-- a **mapping** defines the datatype for each field
-- a **node** is a single running instance of Elasticsearch on a given server
-- a **cluster** is a collection of nodes that work together as a single Elasticsearch system
-- a **shard** is a split up index for the data can be distributed across nodes
-- a **replica** is a copy of a shard, useful for redundancy in case a node fails
+- **Document**: one record
+- **Index**: collection of records
+- **Field**: a property on a record
+- **Mapping**: defines the datatype for each field
+- **Node**: a single running instance of Elasticsearch on a given server
+- **Cluster**: collection of nodes that work together as a single Elasticsearch system
+- **Shard**: a split up index for the data can be distributed across nodes
+- **Replica**: a copy of a shard, useful for redundancy in case a node fails
 
 ## Key Concepts
 
