@@ -37,6 +37,18 @@ Logstash terminology:
 - **Event**: structured record with fields, similar to a JSON document
 - **Field**: a property on a record
 
+## Why is Logstash so important?
+
+Raw logs are often inconsistent. Logstash helps by:
+
+- extracting useful fields from free text
+- normalizing timestamps
+- assigning consistent names to fields
+- cleaning bad or unnecessary data
+- enriching records before indexing
+
+This is especially important when multiple systems produce logs in different formats.
+
 ## Logstash's Pipeline
 
 A Logstash pipeline has 3 stages:
@@ -44,6 +56,8 @@ A Logstash pipeline has 3 stages:
 1. **Input**
 2. **Filter**
 3. **Output**
+
+Every event moves through these 3 stages in order.
 
 Basic shape:
 
@@ -53,7 +67,45 @@ filter {}
 output {}
 ```
 
-Every event moves through these 3 stages in order.
+Example pipeline:
+
+```conf
+input {
+    file {
+        path => "/var/log/app.log"
+        start_position => "beginning"
+    }
+}
+
+filter {
+    grok {
+        match => {
+            "message" => "%{TIMESTAMP_ISO8601:log_time} %{LOGLEVEL:level} %{NOTSPACE:service} user_id=%{INT:user_id} response_time_ms=%{INT:response_time_ms} message=\"%{GREEDYDATA:message}\""
+        }
+    }
+
+    date {
+        match => [ "log_time", "ISO8601" ]
+        target => "@timestamp"
+    }
+
+    mutate {
+        convert => {
+            "user_id" => "integer"
+            "response_time_ms" => "integer"
+        }
+        add_field => { "environment" => "prod" }
+        remove_field => [ "log_time" ]
+    }
+}
+
+output {
+    elasticsearch {
+        hosts => ["http://localhost:9200"]
+        index => "application-logs"
+    }
+}
+```
 
 ### 1. Inputs
 
@@ -75,6 +127,12 @@ input {
         start_position => "beginning"
     }
 }
+```
+
+Example input data:
+
+```text
+2026-04-09T20:00:00Z ERROR auth-api user_id=42 response_time_ms=124 message="User login failed"
 ```
 
 Inputs determine how data **enters** the pipeline.
@@ -134,7 +192,7 @@ Examples:
 - file
 - Kafka
 
-Example:
+Example sending to Elasticsearch:
 
 ```conf
 output {
@@ -145,9 +203,7 @@ output {
 }
 ```
 
-While Elasticsearch is the most common output in ELK, sending data to `stdout` during development is also useful because it lets you inspect exactly what the event looks like after filtering.
-
-Example:
+Example sending to stdout:
 
 ```conf
 output {
@@ -157,11 +213,23 @@ output {
 }
 ```
 
+Example output data:
+
+```json
+{
+    "@timestamp": "2026-04-09T20:00:00Z",
+    "level": "ERROR",
+    "service": "auth-api",
+    "message": "User login failed",
+    "user_id": 42,
+    "response_time_ms": 124,
+    "environment": "prod"
+}
+```
+
 ## Logstash Event
 
 Logstash processes data as events.
-
-A good Logstash pipeline turns messy input into predictable fields and datatypes before the data reaches Elasticsearch.
 
 Example event after parsing:
 
@@ -199,105 +267,4 @@ Use `mutate` to:
 
 ### Normalize timestamps with `date`
 
-Use `date` to make sure time values become `@timestamp`, which Kibana expects for time-based analysis.
-
->>>> TODO: stopped here
-
-## Why This Step Matters
-
-Raw logs are often inconsistent. Logstash helps by:
-
-- extracting useful fields from free text
-- normalizing timestamps
-- assigning consistent names to fields
-- cleaning bad or unnecessary data
-- enriching records before indexing
-
-This is especially important when multiple systems produce logs in different formats.
-
-## Preparing Clean Field Types
-
-You prefer datatypes, so here is the key idea: Logstash should help prepare values so Elasticsearch can map them correctly.
-
-Examples:
-
-- timestamps should be converted into real dates
-- numeric strings should be converted when appropriate
-- booleans should not remain ambiguous text like `"true"` or `"false"` if you can avoid it
-
-If Logstash leaves values messy, Elasticsearch may infer the wrong mapping.
-
-## A Better Example
-
-Input log line:
-
-```text
-2026-04-09T20:00:00Z ERROR auth-api user_id=42 response_time_ms=124 message="User login failed"
-```
-
-After parsing, Logstash might produce:
-
-```json
-{
-    "@timestamp": "2026-04-09T20:00:00Z",
-    "service": "auth-api",
-    "level": "ERROR",
-    "message": "User login failed",
-    "user_id": 42,
-    "response_time_ms": 124
-}
-```
-
-A more complete result might look like this:
-
-```json
-{
-    "@timestamp": "2026-04-09T20:00:00Z",
-    "level": "ERROR",
-    "service": "auth-api",
-    "message": "User login failed",
-    "user_id": 42,
-    "response_time_ms": 124,
-    "environment": "prod"
-}
-```
-
-## Sample Pipeline
-
-```conf
-input {
-    file {
-        path => "/var/log/app.log"
-        start_position => "beginning"
-    }
-}
-
-filter {
-    grok {
-        match => {
-            "message" => "%{TIMESTAMP_ISO8601:log_time} %{LOGLEVEL:level} %{NOTSPACE:service} user_id=%{INT:user_id} response_time_ms=%{INT:response_time_ms} message=\"%{GREEDYDATA:message}\""
-        }
-    }
-
-    date {
-        match => [ "log_time", "ISO8601" ]
-        target => "@timestamp"
-    }
-
-    mutate {
-        convert => {
-            "user_id" => "integer"
-            "response_time_ms" => "integer"
-        }
-        add_field => { "environment" => "prod" }
-        remove_field => [ "log_time" ]
-    }
-}
-
-output {
-    elasticsearch {
-        hosts => ["http://localhost:9200"]
-        index => "application-logs"
-    }
-}
-```
+Use `date` to make sure time values become `@timestamp`.
