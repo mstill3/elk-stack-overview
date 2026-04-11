@@ -6,6 +6,8 @@
 
 Logstash is a data processing pipeline. It ingests data from one or more sources, transforms that data, and sends it to one or more destinations.
 
+Its main purpose is moving and transforming events between systems. A primary goal is to convert raw data into structured events
+
 It is often used to:
 
 - read logs from files
@@ -26,11 +28,18 @@ Its job is usually to:
 - normalize datatypes where possible
 - send the cleaned event onward
 
-Logstash is where you shape the data to what Elasticsearch & Kibana depend on.
+Logstash is where you shape the data to what Elasticsearch & Kibana expect.
 
-## Logstash's Three-Part Pipeline
+## Keywords
 
-A Logstash pipeline has three stages:
+Logstash terminology:
+
+- **Event**: structured record with fields, similar to a JSON document
+- **Field**: a property on a record
+
+## Logstash's Pipeline
+
+A Logstash pipeline has 3 stages:
 
 1. **Input**
 2. **Filter**
@@ -44,7 +53,7 @@ filter {}
 output {}
 ```
 
-You can think of every event as moving through these three stages in order.
+Every event moves through these 3 stages in order.
 
 ### 1. Inputs
 
@@ -68,7 +77,7 @@ input {
 }
 ```
 
-Inputs determine how data enters the pipeline, but they usually do not do much cleanup by themselves.
+Inputs determine how data **enters** the pipeline.
 
 ### 2. Filters
 
@@ -116,7 +125,7 @@ In that example:
 
 ### 3. Outputs
 
-The output stage defines where processed events are sent.
+The output stage defines where processed events are **sent**.
 
 Examples:
 
@@ -148,10 +157,9 @@ output {
 }
 ```
 
->>>> TODO: stopped here
-## What A Logstash Event Looks Like
+## Logstash Event
 
-Logstash processes data as events. An event is a structured record with fields, similar to a JSON document.
+Logstash processes data as events.
 
 A good Logstash pipeline turns messy input into predictable fields and datatypes before the data reaches Elasticsearch.
 
@@ -170,7 +178,7 @@ Example event after parsing:
 
 ## Common Ways To Parse Data
 
-There are several common ways to parse incoming data.
+There are several ways to parse incoming data.
 
 ### Parse plain text with `grok`
 
@@ -192,6 +200,8 @@ Use `mutate` to:
 ### Normalize timestamps with `date`
 
 Use `date` to make sure time values become `@timestamp`, which Kibana expects for time-based analysis.
+
+>>>> TODO: stopped here
 
 ## Why This Step Matters
 
@@ -291,11 +301,3 @@ output {
     }
 }
 ```
-
-## What Logstash Is Not
-
-Its main purpose is moving and transforming events between systems.
-
-## Key Takeaways
-
-- The goal is to convert raw data into structured events
