@@ -4,103 +4,46 @@
 
 ## What is the ELK Stack?
 
+The ELK stack is a common setup for ingesting, storing, searching, and visualizing event data.
+
 ELK stands for:
 
 - **Elasticsearch**: stores and searches data
 - **Logstash**: ingests and transforms data
 - **Kibana**: visualizes and explores data
 
-Together, they form a pipeline for collecting data, storing it, and displaying it.
-
-## Workflow
-
-Think of the stack like this:
-
-1. Logstash receives data from files, APIs, message queues, or other systems
-2. Logstash parses and cleans the data so it has a consistent structure
-3. Elasticsearch stores that structured data in indexes
-4. Kibana lets you search, filter, visualize, and build dashboards from the data in Elasticsearch
+Together, they form a pipeline:
 
 ```text
-Data_Source -> Logstash -> Elasticsearch -> Kibana
+Data Source -> Logstash -> Elasticsearch -> Kibana
 ```
 
-## Step 1: Start With Raw Input
+## Role of Each Part
 
-The source could be:
+- **Logstash** receives raw data and converts it into structured events
+- **Elasticsearch** stores those events and makes them searchable
+- **Kibana** lets users explore the data with searches, filters, charts, and dashboards
 
-- application logs
-- web server logs
-- security events
-- metrics converted into events
-- messages from Kafka or APIs
+Each tool has a separate responsibility, which makes the stack easier to scale and debug.
 
-At this stage, the data may be raw, inconsistent, or hard to query.
+## End-To-End Workflow
 
-## Step 2: Shape The Event
+1. A source system produces raw data
+2. Logstash parses and normalizes that data
+3. Elasticsearch indexes the structured event
+4. Kibana queries Elasticsearch and displays the results
 
-Logstash receives the raw data and transforms it into structured events.
+This usually works best when field names and datatypes are consistent from the start.
 
-Typical work done here:
+## Example
 
-- parse message text
-- extract fields
-- standardize timestamps
-- assign consistent field names
-- drop noisy fields
-- enrich records with metadata
-
-This is where raw data becomes a structured event with useful fields and better datatypes.
-
-Example output event:
-
-```json
-{
-    "@timestamp": "2026-04-09T20:00:00Z",
-    "service": "auth-api",
-    "level": "ERROR",
-    "message": "User login failed",
-    "user_id": 42,
-    "response_time_ms": 124
-}
-```
-
-If Logstash does this stage well, Elasticsearch and Kibana become much easier to work with.
-
-## Step 3: Store And Index It
-
-Elasticsearch stores the event in an index and makes it searchable.
-
-Once indexed, you can:
-
-- search by text
-- filter by exact values
-- aggregate counts and metrics
-- query by time range
-
-Elasticsearch depends on mappings and datatypes to make those operations work correctly.
-
-## Step 4: Explore And Visualize It
-
-Kibana lets users work with the indexed data through:
-
-- Discover for raw events
-- visualizations for charts
-- dashboards for monitoring and analysis
-
-Kibana is where people usually interact with the stack day to day.
-
-## Follow One Event End To End
-
-It helps to track one event from start to finish.
-
-### Raw input
+Raw log line:
 
 ```text
 2026-04-09T20:00:00Z ERROR auth-api user_id=42 response_time_ms=124 message="User login failed"
 ```
 
-### After Logstash parsing
+After Logstash parsing:
 
 ```json
 {
@@ -113,9 +56,7 @@ It helps to track one event from start to finish.
 }
 ```
 
-### After Elasticsearch indexing
-
-The event is stored as a document in an index such as `application-logs`, with field datatypes like:
+After Elasticsearch indexing, fields might use datatypes such as:
 
 - `@timestamp`: `date`
 - `level`: `keyword`
@@ -124,101 +65,40 @@ The event is stored as a document in an index such as `application-logs`, with f
 - `user_id`: `long`
 - `response_time_ms`: `integer`
 
-### In Kibana
-
-That same document can now be:
+In Kibana, that same event can be:
 
 - searched in Discover
 - filtered by `service: auth-api`
-- counted in an error-rate chart
-- included in an operations dashboard
+- counted in an error chart
+- added to a dashboard
 
-## One Realistic Walkthrough
+## Why Datatypes Matter
 
-Imagine an application writes this raw log line:
-
-```text
-2026-04-09T20:00:00Z ERROR auth-api user_id=42 response_time_ms=124 message="User login failed"
-```
-
-Logstash parses it into fields:
-
-```json
-{
-    "@timestamp": "2026-04-09T20:00:00Z",
-    "level": "ERROR",
-    "service": "auth-api",
-    "message": "User login failed",
-    "user_id": 42,
-    "response_time_ms": 124
-}
-```
-
-Elasticsearch stores it in an index such as `application-logs`.
-
-Kibana can then show:
-
-- a chart of login failures over time
-- a table of recent failed logins
-- a dashboard filtered to `service: auth-api`
-
-## Why Field Types Tie The Stack Together
-
-Datatypes are one of the clearest links between all three tools.
+Datatypes connect the whole stack.
 
 Examples:
 
-- Logstash extracts a timestamp string
-- Elasticsearch maps that field as `date`
-- Kibana uses that `date` field for time filtering and date histograms
+- a timestamp should be mapped as `date` so Kibana can use time filters
+- a field like `level` should usually be `keyword` for exact filtering
+- numeric fields should stay numeric so Elasticsearch can calculate averages, ranges, and counts
 
-Another example:
+If datatypes are wrong, search and visualization become harder.
 
-- Logstash extracts `level` as `ERROR`
-- Elasticsearch maps `level` as `keyword`
-- Kibana uses it in exact filters and top-values charts
+## Common Problems
 
-If the datatype is wrong at the Elasticsearch stage, Kibana often becomes much less useful.
-
-## Why This Separation Helps
-
-Each part has a clear responsibility:
-
-- **Logstash** handles ingestion and transformation
-- **Elasticsearch** handles storage and search
-- **Kibana** handles exploration and visualization
-
-That separation makes the platform flexible and scalable.
-
-It also makes troubleshooting easier because you can ask:
-
-- did the source send the event
-- did Logstash parse it correctly
-- did Elasticsearch map and store it correctly
-- does Kibana show it correctly
-
-## Common Beginner Mistakes
-
-- sending messy data into Elasticsearch without parsing it first
+- sending raw, unparsed logs straight into Elasticsearch
 - using inconsistent field names across sources
-- storing timestamps as plain strings instead of `date`
-- using `text` when `keyword` is needed for filtering
-- trying to build dashboards before validating data in Discover
+- storing timestamps as strings instead of `date`
+- using `text` where `keyword` is needed
+- building dashboards before validating the data in Discover
 
-## How To Trace A Problem Through The Stack
+## Troubleshooting Flow
 
-When something looks wrong in Kibana, work backward:
+If something looks wrong in Kibana, work backward:
 
 1. Check whether the document exists in Elasticsearch
 2. Check whether the fields and datatypes are correct
 3. Check the Logstash output event shape
-4. Check whether the original source data contains the expected values
+4. Check the original source data
 
-This method is usually faster than guessing inside Kibana first.
-
-## Practical Rules Of Thumb
-
-- parse as early as possible
-- choose datatypes deliberately
-- keep field names consistent across sources
-- test with a small sample before sending high-volume data
+That is usually the fastest way to find where the problem starts.
