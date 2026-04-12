@@ -31,6 +31,15 @@ Examples:
 - timestamps stored as text
 - inconsistent field names
 
+## Keywords
+
+Kibana terminology:
+
+- **Data View**: defines which Elasticsearch indexes or index patterns Kibana queries
+- **Discover**: explore and search raw data from Elasticsearch
+- **Visualization**: represents query results as charts, tables, or other visual formats
+- **Dashboard**: a collection of visualizations displayed together for analysis
+
 ## Navigating Kibana
 
 ### Data Views
