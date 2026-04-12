@@ -10,6 +10,9 @@ Logstash is optional in the ELK stack. In simpler setups, Beats or applications 
 
 Its main purpose is moving and transforming events between systems. A primary goal is to convert raw data into structured events
 
+Default monitoring API port: `9600`  
+Common Beats input port: `5044`
+
 It is often used to:
 
 - read logs from files
