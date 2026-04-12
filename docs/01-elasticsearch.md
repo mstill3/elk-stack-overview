@@ -1,6 +1,6 @@
 # Elasticsearch
 
-> Distributed search & analytics engine
+> Distributed Search & Analytics Engine
 
 ## What is Elasticsearch?
 

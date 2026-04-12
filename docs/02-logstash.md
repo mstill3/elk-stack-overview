@@ -1,6 +1,6 @@
 # Logstash
 
-> Ingestion & transformation layer
+> Data Ingestion, Transformation & Enrichment Layer
 
 ## What is Logstash?
 

@@ -12,6 +12,8 @@ ELK stands for:
 
 Together, they form a pipeline for collecting data, storing it, and displaying it.
 
+>>> TODO
+
 ## Workflow
 
 Think of the stack like this:

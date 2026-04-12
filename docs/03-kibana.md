@@ -1,6 +1,6 @@
 # Kibana
 
-> Visualization dashboard UI
+> Visualization & Analytics UI
 
 ## What is Kibana?
 
@@ -16,9 +16,9 @@ It is commonly used for:
 
 Kibana is often the first place where users notice whether the underlying data model is clean or messy.
 
-## How Kibana Fits Into The Stack
+### Kibana's Role
 
-Kibana does not store the main dataset itself. It queries Elasticsearch and presents the results in a user-friendly interface.
+Kibana does **NOT** store the main dataset itself. It queries Elasticsearch and presents the results in a user-friendly interface.
 
 That means many Kibana problems are really data problems from earlier in the pipeline.
 
@@ -29,7 +29,7 @@ Examples:
 - timestamps stored as text
 - inconsistent field names
 
-## Key Parts Of Kibana
+## Navigating Kibana
 
 ### Data Views
 
@@ -56,8 +56,6 @@ You can:
 
 Discover is usually the best starting point when validating ingestion.
 
-When a pipeline is new, Discover should be your first stop before building charts.
-
 ### Visualizations
 
 Visualizations turn query results into charts such as:
@@ -68,11 +66,11 @@ Visualizations turn query results into charts such as:
 - tables
 - metric tiles
 
-Visualizations are built on top of fields and aggregations. If the fields are poorly structured, the charts will be confusing or impossible to build.
+Visualizations are built on top of fields and aggregations.
 
 ### Dashboards
 
-Dashboards combine multiple visualizations into one view.
+Dashboards combine multiple visualizations in one view.
 
 A dashboard might show:
 
@@ -82,6 +80,8 @@ A dashboard might show:
 - event counts by environment
 
 Dashboards are useful when you want a repeatable operational view rather than one-off exploration.
+
+>>> TODO
 
 ## A Good Beginner Workflow In Kibana
 
