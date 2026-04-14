@@ -10,8 +10,10 @@ Logstash is optional in the ELK stack. In simpler setups, Beats or applications 
 
 Its main purpose is moving and transforming events between systems. A primary goal is to convert raw data into structured events
 
-Default monitoring API port: `9600`  
-Common Beats input port: `5044`
+| Name                   | Port | Protocol |
+| ---------------------- | ---- | -------- |
+| Default monitoring API | 9600 | TCP      |
+| Common Beats input     | 5044 | TCP      |
 
 It is often used to:
 
@@ -286,7 +288,7 @@ if [level] == "ERROR" {
 }
 ```
 
-## Backpressure and Buffering
+## Backpressure & Buffering
 
 Logstash helps absorb bursts of incoming data and prevents downstream systems from being overwhelmed.
 

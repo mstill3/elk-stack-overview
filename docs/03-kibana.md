@@ -6,7 +6,9 @@
 
 Kibana is the visualization and exploration interface for Elasticsearch data. It lets users search records, build charts, and create dashboards.
 
-Default Kibana web UI port: `5601`
+| Name                  | Port | Protocol |
+| --------------------- | ---- | -------- |
+| Default Kibana web UI | 5601 | TCP      |
 
 It is commonly used for:
 

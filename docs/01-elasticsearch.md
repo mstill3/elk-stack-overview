@@ -6,8 +6,10 @@
 
 Elasticsearch is a distributed search and analytics engine. It is designed to store large volumes of structured data and make that data searchable very quickly.
 
-Default HTTP API port: `9200`  
-Default transport port between nodes: `9300`
+| Name                            | Port | Protocol |
+| ------------------------------- | ---- | -------- |
+| Default HTTP API                | 9200 | TCP      |
+| Default transport between nodes | 9300 | TCP      |
 
 It is commonly used for:
 
@@ -68,7 +70,7 @@ Examples:
 
 Indexes are often organized by data type, source system, or time period.
 
-## Inverted Index
+### Inverted Index
 
 Elasticsearch uses an inverted index under the hood.
 
